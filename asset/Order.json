@@ -7,7 +7,7 @@
     "buyer_accepts_marketing": false,
     "cancel_reason": null,
     "cancelled_at": null,
-    "cart_token": "68778783ad298f1c80c3bafcddeea02f",
+    "cart_token": "0123456789abcdef0456456789abcdef",
     "checkout_id": 901414060,
     "checkout_token": "bd5a8aa1ecd019dd3520ff791ee3a24c",
     "client_details": {
