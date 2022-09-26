@@ -18,10 +18,12 @@ app.get('/', (req, res) => {
 app.post('/cart-abandoned', (req, res) => {
     const reqBody = req.body;
     const handleBody = { c_name: reqBody.customer.first_name, cart_token: reqBody.cart_token, email: reqBody.customer.email, id: reqBody.id, phone: reqBody.phone.phone, time_of_abandonment: Date.now() };
-    (0, cart_abandonment_handler_1.handleAbaondment)(handleBody);
-    res.send('started message sequence');
+    const handler = (0, cart_abandonment_handler_1.handleAbaondment)(handleBody);
+    res.send('handled webhook successfully');
 });
 app.post('/order-created', (req, res) => {
+    const cart_token = req.body.order.cart_token;
+    (0, cart_abandonment_handler_1.order_created_handler)(cart_token);
     res.send('handled successfully');
 });
 app.listen(port, () => {
