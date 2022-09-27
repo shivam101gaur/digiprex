@@ -1,4 +1,13 @@
 
+export function order_created_handler(cart_token: string | number) {
+    handlers.find(ele => {
+        return ele.cart_token == cart_token
+    })?.clearTimer();
+    console.log('cleared timer');
+
+}
+
+
 const handlers: cartAbondmentHandler[] = []
 export function handleAbaondment(params: handleAbaondmentBody) {
     // Actual intervals 
@@ -19,17 +28,9 @@ export function handleAbaondment(params: handleAbaondmentBody) {
 
 
 
-export function order_created_handler(cart_token: string | number) {
-    handlers.find(ele => {
-        return ele.cart_token == cart_token
-    })?.clearTimer();
-    console.log('cleared timer');
 
-}
-
-
-function sendMessage(message: string, timeStamp: number, nextMessageTimer: number) {
-    console.log('😎[ SERVER is sending message  : (time sent at :' + ' ) ] = > ' + message)
+function sendMessage(message: string, handler: cartAbondmentHandler) {
+    console.log(`\n😎[ SERVER is sending message to ${ handler.phone  } & ${ handler.email }   : (time sent at : ${new Date()} ) ] = > ${ message }\n`)
 }
 
 
@@ -73,8 +74,8 @@ export class cartAbondmentHandler implements cartAbondmentHandlerInterface {
         const t = this.time_of_abandonment
         console.log({ t })
         const t1 = t + (3000)
-        const t2 = t + (6000)
-        const t3 = t + (12000)
+        const t2 = t + (15000)
+        const t3 = t + (45000)
         // Actual intervals 
         // T1 = t+30 minutes
         // T2 = t + 1 day
@@ -101,7 +102,7 @@ export class cartAbondmentHandler implements cartAbondmentHandlerInterface {
             clearTimeout(this.timerRef)
 
             this.timerRef = setTimeout(() => {
-                sendMessage('your cart is empty!!', Date.now(), this.intervals[1]);
+                sendMessage('your cart is empty!!', this);
                 this.handler()
             }, time_left);
 
