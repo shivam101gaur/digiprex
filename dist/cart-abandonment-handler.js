@@ -1,6 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cartAbondmentHandler = exports.order_created_handler = exports.handleAbaondment = void 0;
+exports.cartAbondmentHandler = exports.handleAbaondment = exports.order_created_handler = void 0;
+const db_1 = require("./db");
+function order_created_handler(cart_token) {
+    var _a;
+    (_a = handlers.find(ele => {
+        return ele.cart_token == cart_token;
+    })) === null || _a === void 0 ? void 0 : _a.clearTimer();
+    console.log('cleared timer');
+}
+exports.order_created_handler = order_created_handler;
 const handlers = [];
 function handleAbaondment(params) {
     // Actual intervals 
@@ -17,16 +26,20 @@ function handleAbaondment(params) {
     return handle;
 }
 exports.handleAbaondment = handleAbaondment;
-function order_created_handler(cart_token) {
-    var _a;
-    (_a = handlers.find(ele => {
-        return ele.cart_token == cart_token;
-    })) === null || _a === void 0 ? void 0 : _a.clearTimer();
-    console.log('cleared timer');
-}
-exports.order_created_handler = order_created_handler;
-function sendMessage(message, timeStamp, nextMessageTimer) {
-    console.log('😎[ SERVER is sending message  : (time sent at :' + ' ) ] = > ' + message);
+function sendMessage(message, handler) {
+    console.log(`\n😎[ SERVER is sending message to ${handler.phone} & ${handler.email}   : (time sent at : ${new Date()} ) ] = > ${message}\n`);
+    const msg = {
+        cart_token: 'static',
+        content: message,
+        email: 'gaurs3862@gmail.com',
+        phone: '323323232',
+        time_sent: 23232323
+    };
+    (0, db_1.storeMessage)(msg).then(res => {
+        console.log('message stored in DB');
+    }).catch(err => {
+        console.log('message could not be stored !');
+    });
 }
 class cartAbondmentHandler {
     constructor(params) {
@@ -40,8 +53,8 @@ class cartAbondmentHandler {
         const t = this.time_of_abandonment;
         console.log({ t });
         const t1 = t + (3000);
-        const t2 = t + (6000);
-        const t3 = t + (12000);
+        const t2 = t + (15000);
+        const t3 = t + (45000);
         // Actual intervals 
         // T1 = t+30 minutes
         // T2 = t + 1 day
@@ -62,7 +75,7 @@ class cartAbondmentHandler {
             console.log({ time_left, t_now });
             clearTimeout(this.timerRef);
             this.timerRef = setTimeout(() => {
-                sendMessage('your cart is empty!!', Date.now(), this.intervals[1]);
+                sendMessage('you have left unchecked items in your cart !', this);
                 this.handler();
             }, time_left);
             this.intervals.splice(0, 1);

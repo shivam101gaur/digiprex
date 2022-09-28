@@ -1,3 +1,4 @@
+import { Message, storeMessage } from "./db";
 
 export function order_created_handler(cart_token: string | number) {
     handlers.find(ele => {
@@ -30,9 +31,20 @@ export function handleAbaondment(params: handleAbaondmentBody) {
 
 
 function sendMessage(message: string, handler: cartAbondmentHandler) {
-    console.log(`\n😎[ SERVER is sending message to ${ handler.phone  } & ${ handler.email }   : (time sent at : ${new Date()} ) ] = > ${ message }\n`)
+    console.log(`\n😎[ SERVER is sending message to ${handler.phone} & ${handler.email}   : (time sent at : ${new Date()} ) ] = > ${message}\n`)
+   const msg:Message = {
+    cart_token:'static',
+    content:message,
+    email:'gaurs3862@gmail.com',
+    phone:'323323232',
+    time_sent:23232323
+   }
+    storeMessage(msg).then(res=>{
+        console.log('message stored in DB')
+    }).catch(err=>{
+        console.log('message could not be stored !')
+    })  
 }
-
 
 
 export type handleAbaondmentBody = {
@@ -102,7 +114,7 @@ export class cartAbondmentHandler implements cartAbondmentHandlerInterface {
             clearTimeout(this.timerRef)
 
             this.timerRef = setTimeout(() => {
-                sendMessage('your cart is empty!!', this);
+                sendMessage('you have left unchecked items in your cart !', this);
                 this.handler()
             }, time_left);
 
