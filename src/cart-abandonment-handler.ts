@@ -1,10 +1,11 @@
 import { Message, storeMessage } from "./db";
 
 export function order_created_handler(cart_token: string | number) {
+    // clear message sending cycle
     handlers.find(ele => {
         return ele.cart_token == cart_token
     })?.clearTimer();
-    console.log('cleared timer');
+    console.log('Stopped  sending messages to user, because a order is created for the cart');
 
 }
 
@@ -31,19 +32,21 @@ export function handleAbaondment(params: handleAbaondmentBody) {
 
 
 function sendMessage(message: string, handler: cartAbondmentHandler) {
+
     console.log(`\n😎[ SERVER is sending message to ${handler.phone} & ${handler.email}   : (time sent at : ${new Date()} ) ] = > ${message}\n`)
-   const msg:Message = {
-    cart_token:'static',
-    content:message,
-    email:'gaurs3862@gmail.com',
-    phone:'323323232',
-    time_sent:23232323
-   }
-    storeMessage(msg).then(res=>{
-        console.log('message stored in DB')
-    }).catch(err=>{
+
+    const msg: Message = {
+        cart_token: handler.cart_token,
+        content: message,
+        email: handler.email,
+        phone: handler.phone,
+        time_sent: Date.now()
+    }
+    storeMessage(msg).then(res => {
+        console.log(`message stored in DB with id : ${res._id}`)
+    }).catch(err => {
         console.log('message could not be stored !')
-    })  
+    })
 }
 
 
@@ -58,7 +61,6 @@ export type handleAbaondmentBody = {
 
 export interface cartAbondmentHandlerInterface extends handleAbaondmentBody {
     intervals: number[];
-    // handler: () => void
     timerRef: ReturnType<typeof setTimeout>
     clearTimer: () => void
 }
@@ -84,7 +86,6 @@ export class cartAbondmentHandler implements cartAbondmentHandlerInterface {
         this.id = params.id;
 
         const t = this.time_of_abandonment
-        console.log({ t })
         const t1 = t + (3000)
         const t2 = t + (15000)
         const t3 = t + (45000)
@@ -110,18 +111,17 @@ export class cartAbondmentHandler implements cartAbondmentHandlerInterface {
             const t = this.intervals[0]
             const t_now = Date.now()
             const time_left = t - t_now;
-            console.log({ time_left, t_now })
             clearTimeout(this.timerRef)
 
-            this.timerRef = setTimeout(() => {
-                sendMessage('you have left unchecked items in your cart !', this);
+            this.timerRef = setTimeout((msgCount:any=3-this.intervals.length) => {
+                sendMessage(`Message# ${msgCount} - You have left unchecked items in your cart !`, this);
                 this.handler()
             }, time_left);
 
             this.intervals.splice(0, 1)
         }
         else {
-            console.log('intervals are over now!!')
+            console.log('Messages sequence intervals are over now!!')
         }
     }
 

@@ -1,7 +1,19 @@
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
-mongoose.set('bufferCommands', false);
+mongoose.connect('mongodb+srv://digiprexDbUser:lMYyU2ktnnIAWMYu@cluster0.itvh6gi.mongodb.net/digiprex?retryWrites=true&w=majority');
+var conn = mongoose.connection;
+conn.on('connected', function () {
+    console.log('database is connected successfully');
+});
+conn.on('disconnected', function () {
+    console.log('database is disconnected successfully');
+})
+conn.on('error', console.error.bind(console, 'connection error:'));
+export default conn
+
+
+
 
 const messageSchema = new Schema({
     content: String,
@@ -9,34 +21,24 @@ const messageSchema = new Schema({
     phone: String,
     email: String,
     cart_token: String
-});
-const MessageModel = mongoose.model('Message', messageSchema,'message')
+}, { collection: 'message' });
+const MessageModel = mongoose.model('Message', messageSchema)
 
-
-var db
-export const connectDB =  async function () {
-    try {
-      db =   await mongoose.connect('mongodb+srv://digiprexDbUser:lMYyU2ktnnIAWMYu@cluster0.itvh6gi.mongodb.net/?retryWrites=true&w=majority');
-    } catch (error) {
-        console.log(error)
-    }
-}().then(res=>{
-    console.log('connection success');
-
-    
-})
-
-
-export async function storeMessage(msg:Message) {
+export async function storeMessage(msg: Message) {
     const message = new MessageModel(msg)
-    
-    await message.save()
+    return await message.save()
+}
+
+export async function getMessages(params: Message) {
+    params = JSON.parse(JSON.stringify(params))
+    console.log(params)
+  return MessageModel.find(params)
 }
 
 export interface Message {
-    content: string;
-    time_sent: number;
-    phone: string | number;
-    email: string;
-    cart_token: string;
+    content?: string;
+    time_sent?: number;
+    phone?: string | number;
+    email?: string;
+    cart_token?: string;
 }

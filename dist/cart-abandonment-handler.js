@@ -4,10 +4,11 @@ exports.cartAbondmentHandler = exports.handleAbaondment = exports.order_created_
 const db_1 = require("./db");
 function order_created_handler(cart_token) {
     var _a;
+    // clear message sending cycle
     (_a = handlers.find(ele => {
         return ele.cart_token == cart_token;
     })) === null || _a === void 0 ? void 0 : _a.clearTimer();
-    console.log('cleared timer');
+    console.log('Stopped  sending messages to user, because a order is created for the cart');
 }
 exports.order_created_handler = order_created_handler;
 const handlers = [];
@@ -29,14 +30,14 @@ exports.handleAbaondment = handleAbaondment;
 function sendMessage(message, handler) {
     console.log(`\n😎[ SERVER is sending message to ${handler.phone} & ${handler.email}   : (time sent at : ${new Date()} ) ] = > ${message}\n`);
     const msg = {
-        cart_token: 'static',
+        cart_token: handler.cart_token,
         content: message,
-        email: 'gaurs3862@gmail.com',
-        phone: '323323232',
-        time_sent: 23232323
+        email: handler.email,
+        phone: handler.phone,
+        time_sent: Date.now()
     };
     (0, db_1.storeMessage)(msg).then(res => {
-        console.log('message stored in DB');
+        console.log(`message stored in DB with id : ${res._id}`);
     }).catch(err => {
         console.log('message could not be stored !');
     });
@@ -51,7 +52,6 @@ class cartAbondmentHandler {
         this.time_of_abandonment = params.time_of_abandonment;
         this.id = params.id;
         const t = this.time_of_abandonment;
-        console.log({ t });
         const t1 = t + (3000);
         const t2 = t + (15000);
         const t3 = t + (45000);
@@ -72,16 +72,15 @@ class cartAbondmentHandler {
             const t = this.intervals[0];
             const t_now = Date.now();
             const time_left = t - t_now;
-            console.log({ time_left, t_now });
             clearTimeout(this.timerRef);
-            this.timerRef = setTimeout(() => {
-                sendMessage('you have left unchecked items in your cart !', this);
+            this.timerRef = setTimeout((msgCount = 3 - this.intervals.length) => {
+                sendMessage(`Message# ${msgCount} - You have left unchecked items in your cart !`, this);
                 this.handler();
             }, time_left);
             this.intervals.splice(0, 1);
         }
         else {
-            console.log('intervals are over now!!');
+            console.log('Messages sequence intervals are over now!!');
         }
     }
     clearTimer() {
