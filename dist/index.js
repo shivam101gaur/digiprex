@@ -7,8 +7,10 @@ const express_1 = __importDefault(require("express"));
 const cart_abandonment_handler_1 = require("./cart-abandonment-handler");
 const body_parser_1 = __importDefault(require("body-parser"));
 const db_1 = require("./db");
+const cors = require('cors');
 console.clear();
 const app = (0, express_1.default)();
+app.use(cors());
 const port = 8000;
 // parse application/x-www-form-urlencoded
 app.use(body_parser_1.default.urlencoded({ extended: false }));

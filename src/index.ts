@@ -3,9 +3,16 @@ import { handleAbaondment, handleAbaondmentBody, order_created_handler } from '.
 import { PostCartAbandonedBody } from './models/postCartAbandoned.model';
 import bodyParser from 'body-parser';
 import { getMessages, Message } from './db';
+const cors = require('cors')
+
 console.clear()
+
+
+
 const app: Express = express();
+app.use(cors())
 const port = 8000
+
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
