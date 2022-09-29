@@ -43,7 +43,6 @@ exports.storeMessage = storeMessage;
 function getMessages(params) {
     return __awaiter(this, void 0, void 0, function* () {
         params = JSON.parse(JSON.stringify(params));
-        console.log(params);
         return MessageModel.find(params);
     });
 }

@@ -31,7 +31,6 @@ export async function storeMessage(msg: Message) {
 
 export async function getMessages(params: Message) {
     params = JSON.parse(JSON.stringify(params))
-    console.log(params)
   return MessageModel.find(params)
 }
 
